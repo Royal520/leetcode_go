@@ -1,4 +1,6 @@
-package main
+package cn
+
+import "fmt"
 
 type ListNode struct {
 	Val  int
@@ -16,4 +18,13 @@ func newListNode(arry []int) *ListNode {
 		p = p.Next
 	}
 	return root
+}
+
+func printNode(node *ListNode) {
+	cur := node
+	for cur != nil {
+		fmt.Print(cur.Val)
+		fmt.Print("-->")
+		cur = cur.Next
+	}
 }

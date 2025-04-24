@@ -1,4 +1,4 @@
-package main
+package cn
 
 type UnionFind struct {
 	size     []int

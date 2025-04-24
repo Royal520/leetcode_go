@@ -1,4 +1,4 @@
-package main
+package cn
 
 import (
 	"math/rand"
@@ -29,10 +29,10 @@ func quickSelect(a []int, l, r, index int) int {
 func randomPartition(a []int, l, r int) int {
 	i := rand.Int()%(r-l+1) + l
 	a[i], a[r] = a[r], a[i]
-	return partition(a, l, r)
+	return partition_(a, l, r)
 }
 
-func partition(a []int, l, r int) int {
+func partition_(a []int, l, r int) int {
 	x := a[r]
 	i := l - 1
 	for j := l; j < r; j++ {
