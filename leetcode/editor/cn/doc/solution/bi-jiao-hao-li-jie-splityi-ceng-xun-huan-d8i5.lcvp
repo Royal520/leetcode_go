@@ -1,0 +1,56 @@
+> Problem: [2490. 回环句](https://leetcode.cn/problems/circular-sentence/description/)
+
+[TOC]
+
+# 思路
+
+split + 一层循环
+
+# 解题方法
+
+一层循环，然后对比每个值，如果不符合返回false,全部满足，返回true
+
+# 复杂度
+
+- 时间复杂度:
+
+> 添加时间复杂度, 示例： $O(n)$
+
+- 空间复杂度:
+
+> 添加空间复杂度, 示例： $O(n)$
+
+# Code
+
+* []
+
+```JavaScript
+
+/**
+ * @param {string} sentence
+ * @return {boolean}
+ */
+var isCircularSentence = function (sentence) {
+    const list = sentence.split(' ')
+    const len = list.length
+    for (let i = 0; i < len; i++) {
+        if (i === len - 1) {
+            if (lastValue(list[len-1]) !== firstValue(list[0])) {
+                return false
+            }
+        } else {
+            if (lastValue(list[i]) !== firstValue(list[i + 1])) {
+                return false
+            }
+        }
+    }
+    return true
+};
+var lastValue = (value) => {
+    return value[value.length - 1]
+}
+var firstValue = (value) => {
+    return value[0]
+}
+```
+

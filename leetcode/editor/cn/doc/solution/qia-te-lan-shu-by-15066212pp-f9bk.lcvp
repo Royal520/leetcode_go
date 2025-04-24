@@ -1,0 +1,358 @@
+![image.png](https://pic.leetcode.cn/1668082698-cJOLGa-image.png)
+
+公式如下
+![IMG_20221122_121423.jpg](https://pic.leetcode.cn/1669090497-SVvyyl-IMG_20221122_121423.jpg)
+
+具体的值
+![image.png](https://pic.leetcode.cn/1671278952-koiFEu-image.png)
+
+完整代码
+
+* 
+
+```
+import java.util.LinkedHashMap;
+import java.util.Stack;
+
+public class 卡特兰数转换 {
+    static LinkedHashMap<Integer, Integer> map = new LinkedHashMap<>();
+    public static int H(int n) {
+        if (map.containsKey(n)) {
+            return map.get(n);
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        int temp = 0;
+        for (int i = 0; i < n; i++) {
+            temp = temp + H(n - 1 - i) * H(i);
+        }
+        map.put(n, temp);
+        return temp;
+    }
+    static String ktl[][] = new String[200][200];
+
+    public static String[] k(String a, int n) {
+        if (ktl[n][0] != null) {
+            return ktl[n];
+        }
+        if (n == 0) {
+            return new String[]{""};
+        }
+        if (n == 1) {
+            return new String[]{a};
+        }
+        String[] temps = new String[H(n)];
+        for (int i = 0; i < temps.length; i++) {
+            temps[i] = "";
+        }
+        int number = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < H(n - 1 - i); j++) {
+                for (int k = 0; k < H(i); k++) {
+                    temps[number] = temps[number] + a.charAt(0) + k(a, n - 1 - i)[j] + a.charAt(1) + k(a, i)[k];
+                    number++;
+                }
+            }
+        }
+        ktl[n] = temps;
+        return temps;
+    }
+    static long A[][] = new long[200][200];
+
+    public static long A(long n, long m) {
+        if (A[(int) n][(int) m] != 0) {
+            return A[(int) n][(int) m];
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        if (m == 0) {
+            return 1;
+        }
+        if (m == 1) {
+            A[(int) n][(int) m] = n;
+            return n;
+        }
+        if (m % 2 == 0) {
+            long k = m / 2;
+            long temp1 = A(n, k);
+            long temp2 = A(n - k, k);
+            A[(int) n][(int) m] = temp1 * temp2;
+            return temp1 * temp2;
+        } else {
+            A[(int) n][(int) m] = A(n - 1, m - 1) * n;
+            return A(n - 1, m - 1) * n;
+        }
+    }
+
+    public static void main(String[] args) {
+        Stack stack = new Stack();
+        String s = "1234";
+        int n = 4;
+        for (int i = 0; i < H(n); i++) {
+            int cnt = 0;
+            for (int j = 0; j < 2 * n; j++) {
+                if (k("+-", n)[i].charAt(j) == '+') {
+                    stack.push(s.charAt(cnt));
+                    cnt++;
+                } else {
+                    System.out.print(stack.pop() + " ");
+                }
+            }
+            System.out.print(k("+-", n)[i]);
+            System.out.println();
+        }
+    }
+}
+```
+
+代码0(利用卡特兰数的加法原理)
+![Screenshot_2023-01-10-16-46-57-11_149003a2d400f6a.jpg](https://pic.leetcode.cn/1673340437-gbnOkG-Screenshot_2023-01-10-16-46-57-11_149003a2d400f6a.jpg)
+
+* 
+
+```
+class Solution {
+    public int numTrees(int n) {
+        return get(n,n);
+    }
+
+    static int[][] ints = new int[100][100];
+
+    public static int get(int x, int y) {
+        if (ints[x][y] != 0) {
+            return ints[x][y];
+        }
+        if (y == 0) {
+            ints[x][y] = 1;
+            return 1;
+        }
+        if (x == y) {
+            ints[x][y] = get(x, y - 1);
+            return get(x, y - 1);
+        } else {
+            ints[x][y] = get(x - 1, y) + get(x, y - 1);
+            return get(x - 1, y) + get(x, y - 1);
+        }
+    }
+}
+```
+
+代码1（最快的递推公式）
+
+* 
+
+```
+class Solution {
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = (4 * n - 2) * H(n - 1) / (n + 1);
+        return temp;
+    }
+}
+```
+
+代码1-1(LinkedHashMap优化版)
+
+* 
+
+```
+class Solution {
+    static LinkedHashMap<Long, Long> map = new LinkedHashMap<>();
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (map.containsKey(n)) {
+            return map.get(n);
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = (4 * n - 2) * H(n - 1) / (n + 1);
+        map.put(n, temp);
+        return temp;
+    }
+}
+```
+
+代码1-2(数组优化版)
+
+* 
+
+```
+class Solution {
+    static long a[] = new long[100];
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (a[(int) n] != 0) {
+            return a[(int) n];
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = (4 * n - 2) * H(n - 1) / (n + 1);
+        a[(int)n]=temp;
+        return temp;
+    }
+}
+```
+
+代码2（通项公式-组合数）
+
+* 
+
+```
+class Solution {
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = C(2 * n, n) / (n + 1);
+        return temp;
+    }
+
+    public static long C(long n, long m) {
+        if (n == 0 || m == n || m == 0) {
+            return 1;
+        }
+        if (m == 1 || m == n - 1) {
+            return n;
+        } 
+        if (m > n - m) {
+            return C(n, n - m);
+        } 
+        if (m % 2 == 0) {
+            long k = m / 2;
+            long temp1 = C(n, k);
+            long temp2 = C(m, k);
+            long temp3 = C(n - k, m - k);
+            return (temp1 * temp3) / temp2;
+        } else {
+            return n * C(n - 1, m - 1) / m;
+        }
+    }
+}
+```
+
+代码3（最原始的公式-非常慢）
+
+* 
+
+```
+class Solution {
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+    public static long H(long n) {
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = 0;
+        for (long i = 0; i < n; i++) {
+            temp = temp + H(n - 1 - i) * H(i);
+        }
+        return temp;
+    }
+}
+```
+
+代码3-1（最原始公式-LinkedHashMap优化版-也是0ms）
+
+* 
+
+```
+class Solution {
+    static LinkedHashMap<Long, Long> map = new LinkedHashMap<>();
+
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (map.containsKey(n)) {
+            return map.get(n);
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = 0;
+        for (long i = 0; i < n; i++) {
+            temp = temp + H(n - 1 - i) * H(i);
+        }
+        map.put(n, temp);
+        return temp;
+    }
+}
+```
+
+代码3-2（最原始公式-数组优化版-也是0ms）
+
+* 
+
+```
+class Solution {
+    static long a[] = new long[100];
+    public static int numTrees(int n) {
+        return (int) H(n);
+    }
+
+    public static long H(long n) {
+        if (a[(int) n] != 0) {
+            return a[(int) n];
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (n == 1) {
+            return 1;
+        }
+        long temp = 0;
+        for (long i = 0; i < n; i++) {
+            temp = temp + H(n - 1 - i) * H(i);
+        }
+        a[(int)n] = temp;
+        return temp;
+    }
+}
+```
+

@@ -1,0 +1,41 @@
+### 执行时间
+
+![图片.png](https://pic.leetcode-cn.com/1762d8d689f881c6a878ff3d2b45ca038682106ac54d0ebc7770bc96a716b7a7-%E5%9B%BE%E7%89%87.png)
+
+### 思路
+
+1. 使用 `dummy->next` 来保存需要返回的头节点
+2. 判断 `l1` 和 `l2` 哪个更小，就把这个节点接到下一个
+   21. 使用指向指针的指针 `pp` 用来存储更小的一边的指针
+   22. 在帮助 `dummy` 连接之后，还可以控制更小的 `l1` 或 `l2` 向后移动
+3. 直到有一边为 `nullptr` ，即可将另一边剩余的都接上
+
+### 图解
+
+<![图片.png](https://pic.leetcode-cn.com/5791618ce47d75a5e4809c9002cdc09060feffe0fd6a1a9c2c8677b50fdcecfe-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/91d8d112fbb3f34a94b35a428e9b63db843a5eeb6d5bf0148054267a3331d559-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/587f3f4d45f2a346a67ced93e2a39ece803af2dee96005ca94aadab298106918-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/6101c71bf35390b8e279a23e8027b179fe9d0a46f399bd9f37c3e4b512ad647f-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/5026bf126feccbfcca5d7202ee793d5d099223eae14c4596264eaeb89c760a3c-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/0e91fc851c9e08b46c5d5e83a319e5101b906d71d14d12e5b8a0a83ac2085773-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/84227629fcb12198c2888c2b1f41a5d525231efa6c329a99ba2372a83e068c43-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/54a2247fa7bbe4f101c50892208cb34e301bc183e43cf18454fa569dbe1552da-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/aa74dad01100356c9593b8a3525fae4dc33e0c92f69b20f8507c3a2aac250f29-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/0a08a2fe1c2738b1bc11bdd2675a5af91b94eed2758a09405155689fe775810d-%E5%9B%BE%E7%89%87.png),![图片.png](https://pic.leetcode-cn.com/2869195fb6396ae0ff5a303daede83aec4b75d0afb5f825a1212a7ebe31d39de-%E5%9B%BE%E7%89%87.png)>
+
+### 答题
+
+* []
+
+```C++
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode* dummy = new ListNode(0);
+        ListNode* cur = dummy;
+        while (l1 != nullptr && l2 != nullptr) {
+            ListNode** pp = (l1->val < l2->val) ? &l1 : &l2;
+            cur->next = *pp;
+            cur = cur->next;
+            *pp = (*pp)->next;
+        }
+        cur->next = (l1 == nullptr) ? l2 : l1;
+
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+```
+
+### 致谢
+
+感谢您的观看，如果这篇题解对你有帮助，欢迎点赞支持，关注 [我的力扣个人主页](https://leetcode-cn.com/u/ikaruga/)，欢迎热烈的交流！

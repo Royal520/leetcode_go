@@ -1,0 +1,38 @@
+### 解题思路
+
+此处撰写解题思路
+
+### 代码
+
+* golang
+
+```golang
+/**
+ * Definition for a binary tree node.
+ * type TreeNode struct {
+ *     Val int
+ *     Left *TreeNode
+ *     Right *TreeNode
+ * }
+ */
+func flatten(root *TreeNode) {
+	if root == nil {
+		return
+	}
+	flatten0(root)
+}
+
+func flatten0(root *TreeNode) (first, last *TreeNode) {
+	first, last = root, root
+	left, right := root.Left, root.Right
+	root.Left, root.Right = nil, nil
+	if left != nil {
+		last.Right, last = flatten0(left)
+	}
+	if right != nil {
+		last.Right, last = flatten0(right)
+	}
+	return
+}
+```
+

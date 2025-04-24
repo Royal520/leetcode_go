@@ -1,0 +1,148 @@
+#### 方法一：双指针
+
+**思路与算法**
+
+我们可以使用双指针对给定的字符串 $s$ 进行遍历。初始时，两个指针 $\textit{left}$ 和 $\textit{right}$ 分别指向 $s$ 的首尾。在遍历的过程中，$\textit{left}$ 每次向右移动一个位置，$\textit{right}$ 每次向左移动一个位置，这样一来，它们总是指向在最终回文字符串中必须相同的两个字母，会有以下两种情况：
+
+- 如果它们指向的字母相同，我们无需进行任何操作。当两个指针指向同一个位置时，也属于这一种情况；
+- 如果它们指向的字母不同，由于需要尽可能少的操作，我们会把其中一个字母修改成与另一个字母相同。对于这一次操作，我们需要让最终字符串的字典序最小，因此我们应当贪心地将字典序较大的字母改成与字典序较小的字母相同。
+
+我们根据上述操作对字符串 $s$ 进行遍历后，即可得到最终的回文字符串。
+
+**代码**
+
+* [sol1-C++]
+
+```C++
+class Solution {
+public:
+    string makeSmallestPalindrome(string s) {
+        int left = 0, right = s.size() - 1;
+        while (left < right) {
+            if (s[left] != s[right]) {
+                s[left] = s[right] = min(s[left], s[right]);
+            }
+            ++left;
+            --right;
+        }
+        return s;
+    }
+};
+```
+
+* [sol1-Java]
+
+```Java
+class Solution {
+    public String makeSmallestPalindrome(String s) {
+        char[] arr = s.toCharArray();
+        int left = 0, right = arr.length - 1;
+        while (left < right) {
+            if (arr[left] != arr[right]) {
+                arr[left] = arr[right] = (char) Math.min(arr[left], arr[right]);
+            }
+            ++left;
+            --right;
+        }
+        return new String(arr);
+    }
+}
+```
+
+* [sol1-C#]
+
+```C#
+public class Solution {
+    public string MakeSmallestPalindrome(string s) {
+        char[] arr = s.ToCharArray();
+        int left = 0, right = arr.Length - 1;
+        while (left < right) {
+            if (arr[left] != arr[right]) {
+                arr[left] = arr[right] = (char) Math.Min(arr[left], arr[right]);
+            }
+            ++left;
+            --right;
+        }
+        return new string(arr);
+    }
+}
+```
+
+* [sol1-Python3]
+
+```Python
+class Solution:
+    def makeSmallestPalindrome(self, s: str) -> str:
+        s = list(s)
+
+        left, right = 0, len(s) - 1
+        while left < right:
+            if s[left] != s[right]:
+                s[left] = s[right] = min(s[left], s[right])
+            left += 1
+            right -= 1
+        
+        return "".join(s)
+```
+
+* [sol1-C]
+
+```C
+char * makeSmallestPalindrome(char * s) {
+    int left = 0, right = strlen(s) - 1;
+    while (left < right) {
+        if (s[left] != s[right]) {
+            s[left] = s[right] = fmin(s[left], s[right]);
+        }
+        ++left;
+        --right;
+    }
+    return s;
+}
+```
+
+* [sol1-Go]
+
+```Go
+func makeSmallestPalindrome(s string) string {
+    left, right := 0, len(s) - 1
+    t := []byte(s)
+    for left < right {
+        if s[left] != s[right] {
+            t[left] = min(s[left], s[right])
+            t[right] = t[left]
+        }
+        left++
+        right--
+    }
+    return string(t)
+}
+```
+
+* [sol1-JavaScript]
+
+```JavaScript
+var makeSmallestPalindrome = function(s) {
+    s = s.split('');
+    let left = 0, right = s.length - 1;
+    while (left < right) {
+        if (s[left] != s[right]) {
+            if (s[left] < s[right]) {
+                s[right] = s[left];
+            } else {
+                s[left] = s[right];
+            }
+        }
+        ++left;
+        --right;
+    }
+    return s.join('');
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：$O(n)$，其中 $n$ 是字符串 $s$ 的长度。
+
+- 空间复杂度：$O(n)$ 或 $O(1)$，取决于使用的语言是否可以对字符串进行修改。
+

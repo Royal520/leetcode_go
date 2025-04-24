@@ -1,0 +1,68 @@
+> Problem: [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/description/)
+
+[TOC]
+
+# 思路
+
+> 看到这题可以很容易地想到通过哈希表处理。但是对于面试，快慢指针可以做到更好的空间复杂度。
+> 这里的快慢指针判断环的方法是：
+> 每次快指针走两步，慢指针走一步，当快指针指向空的时候，说明无环，返回。
+> 当慢指针和快指针指向同一个节点的时候说明有环。此时快指针回到起点，快指针和慢指针每次走一步。当走到相遇的时候，相遇的节点就是环形链表入环的节点。
+
+注意快指针和慢指针的初始位置。
+
+# 复杂度
+
+- 时间复杂度:
+
+> $O(n)$
+
+- 空间复杂度:
+
+> $O(1)$
+
+# Code
+
+* []
+
+```C++
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        if(head==nullptr||head->next == nullptr)
+        {
+            return nullptr;
+        }
+
+        ListNode* l = head->next;
+        ListNode* f = head->next->next;
+        while(l!=f)
+        {
+            if(f == nullptr||f->next == nullptr)
+            {
+                return nullptr;
+            }
+            l = l->next;
+            f = f->next->next;
+        }
+        f = head;
+        while(l!=f)
+        {
+            // cout<<l->val<<' '<<f->val<<'\n';
+            l = l->next;
+            f = f->next;
+        }
+        return f;
+    }
+};
+```
+

@@ -1,0 +1,172 @@
+![lc1-cut.png](https://pic.leetcode.cn/1688138607-RotLCn-lc1-cut.png)
+
+<![lc1-1.png](https://pic.leetcode.cn/1688135757-Sjcxmk-lc1-1.png),![lc1-2.png](https://pic.leetcode.cn/1688135757-cBtvsB-lc1-2.png),![lc1-3.png](https://pic.leetcode.cn/1688135757-rcvJii-lc1-3.png),![lc1-4.png](https://pic.leetcode.cn/1688135757-TVqxKQ-lc1-4.png),![lc1-5.png](https://pic.leetcode.cn/1688135757-gbdDCN-lc1-5.png),![lc1-6-x.png](https://pic.leetcode.cn/1688135962-XlOrzl-lc1-6-x.png),![lc1-7.png](https://pic.leetcode.cn/1688135757-hMIJdl-lc1-7.png),![lc1-8-x.png](https://pic.leetcode.cn/1688136022-tEoGkQ-lc1-8-x.png),![lc1-9-x.png](https://pic.leetcode.cn/1688136187-XXYIeT-lc1-9-x.png),![lc1-10-x.png](https://pic.leetcode.cn/1688136187-wiIlsk-lc1-10-x.png)>
+
+## 答疑
+
+**问**：是什么原因导致了这两种算法的快慢？
+
+**答**：我用「获取了多少信息」来解释。
+
+暴力做法每次拿两个数出来相加，和 $\textit{target}$ 比较，那么花费 $\mathcal{O}(1)$ 的时间，只获取了 $\mathcal{O}(1)$ 的信息。
+
+而哈希表做法，每次查询都能知道 $\mathcal{O}(n)$ 个数中是否有 $\textit{target}-\textit{nums}[j]$，那么花费 $\mathcal{O}(1)$ 的时间，就获取了 $\mathcal{O}(n)$ 的信息。
+
+这就是为什么我们可以把暴力的 $\mathcal{O}(n^2)$ 优化成 $\mathcal{O}(n)$。
+
+## 暴力写法
+
+* [sol-Python3]
+
+```py
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        for i, x in enumerate(nums):  # x=nums[i]
+            for j in range(i + 1, len(nums)):  # 枚举 i 右边的 j
+                if x + nums[j] == target:  # 满足要求
+                    return [i, j]  # 返回两个数的下标
+        # 这里无需 return，因为题目保证有解
+```
+
+* [sol-Java]
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        for (int i = 0; ; i++) // 枚举 i
+            for (int j = i + 1; j < nums.length; j++) // 枚举 i 右边的 j
+                if (nums[i] + nums[j] == target) // 满足要求
+                    return new int[]{i, j}; // 返回两个数的下标
+        // 题目保证有解，循环中一定会 return
+        // 所以这里无需 return，毕竟代码不会执行到这里
+    }
+}
+```
+
+* [sol-C++]
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int> &nums, int target) {
+        for (int i = 0;; i++) // 枚举 i
+            for (int j = i + 1; j < nums.size(); j++) // 枚举 i 右边的 j
+                if (nums[i] + nums[j] == target) // 满足要求
+                    return {i, j}; // 返回两个数的下标
+        // 题目保证有解，循环中一定会 return
+        // 所以这里无需 return，毕竟代码不会执行到这里
+    }
+};
+```
+
+* [sol-Go]
+
+```go
+func twoSum(nums []int, target int) []int {
+    for i, x := range nums { // 枚举 i
+        for j := i + 1; j < len(nums); j++ { // 枚举 i 右边的 j
+            if x+nums[j] == target { // 满足要求
+                return []int{i, j} // 返回两个数的下标
+            }
+        }
+    }
+    return nil // 题目保证一定有解，代码不会执行到这里
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$\mathcal{O}(n^2)$，其中 $n$ 为 $\textit{nums}$ 的长度。
+- 空间复杂度：$\mathcal{O}(1)$。仅用到若干额外变量。
+
+## 哈希表写法
+
+* [sol-Python3]
+
+```py
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        idx = {}  # 创建一个空哈希表（字典）
+        for j, x in enumerate(nums):  # x=nums[j]
+            if target - x in idx:  # 在左边找 nums[i]，满足 nums[i]+x=target
+                return [idx[target - x], j]  # 返回两个数的下标
+            idx[x] = j  # 保存 nums[j] 和 j
+```
+
+* [sol-Java]
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> idx = new HashMap<>(); // 创建一个空哈希表
+        for (int j = 0; ; j++) { // 枚举 j
+            int x = nums[j];
+            // 在左边找 nums[i]，满足 nums[i]+x=target
+            if (idx.containsKey(target - x)) // 找到了
+                return new int[]{idx.get(target - x), j}; // 返回两个数的下标
+            idx.put(x, j); // 保存 nums[j] 和 j
+        }
+    }
+}
+```
+
+* [sol-C++]
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int> &nums, int target) {
+        unordered_map<int, int> idx; // 创建一个空哈希表
+        for (int j = 0;; j++) { // 枚举 j
+            // 在左边找 nums[i]，满足 nums[i]+nums[j]=target
+            auto it = idx.find(target - nums[j]);
+            if (it != idx.end()) // 找到了
+                return {it->second, j}; // 返回两个数的下标
+            idx[nums[j]] = j; // 保存 nums[j] 和 j
+        }
+    }
+};
+```
+
+* [sol-Go]
+
+```go
+func twoSum(nums []int, target int) []int {
+    idx := map[int]int{} // 创建一个空哈希表
+    for j, x := range nums { // 枚举 j
+        // 在左边找 nums[i]，满足 nums[i]+x=target
+        if i, ok := idx[target-x]; ok { // 找到了
+            return []int{i, j} // 返回两个数的下标
+        }
+        idx[x] = j // 保存 nums[j] 和 j
+    }
+    return nil // 题目保证一定有解，代码不会执行到这里
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：$\mathcal{O}(n)$，其中 $n$ 为 $\textit{nums}$ 的长度。
+- 空间复杂度：$\mathcal{O}(n)$。哈希表需要 $\mathcal{O}(n)$ 的空间。
+
+相比暴力做法，哈希表消耗了内存空间，减少了运行时间，这就叫「空间换时间」。
+
+## 总结 · 练习
+
+很多涉及到「两个变量」的题目，都可以枚举其中一个变量，把它当成**常量**看待，从而转换成「一个变量」的问题。
+
+代码实现时，通常来说「枚举右，寻找左」是更加好写的。
+
+- [219. 存在重复元素 II](https://leetcode.cn/problems/contains-duplicate-ii/)
+- [1512. 好数对的数目](https://leetcode.cn/problems/number-of-good-pairs/)
+- [1010. 总持续时间可被 60 整除的歌曲](https://leetcode.cn/problems/pairs-of-songs-with-total-durations-divisible-by-60/)
+- [2748. 美丽下标对的数目](https://leetcode.cn/problems/number-of-beautiful-pairs/)
+
+## 思考题
+
+1. 如果 $\textit{nums}$ 是有序的，是否还需要哈希表？换句话说，能否做到 $\mathcal{O}(1)$ 额外空间？
+2. 如果要求寻找**三个**数，它们的和等于 $\textit{target}$ 呢？
+
+请看[【基础算法精讲 02】](https://www.bilibili.com/video/BV1bP411c7oJ/)。APP 用户若无法正常打开，可以把题解分享到微信中打开。
+
+如果这篇题解对你有帮助，欢迎点赞！

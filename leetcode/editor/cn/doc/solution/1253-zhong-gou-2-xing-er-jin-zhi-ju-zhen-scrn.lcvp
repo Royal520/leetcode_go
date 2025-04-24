@@ -1,0 +1,39 @@
+#### 思路
+
+依次填充，步骤如下：
+1. colsum 为 2 或 0 时，都填1或0,
+2. colsum 为 1 时，优先填upper和lower数字大的行
+3. 每次填充完确保upper和lower大于0
+
+* 
+
+```
+class Solution {
+public:
+    vector<vector<int>> reconstructMatrix(int upper, int lower, vector<int>& colsum) {
+        if (accumulate(colsum.begin(), colsum.end(), 0) != upper + lower) {
+            return vector<vector<int>>();
+        }
+        vector<vector<int>> ans(2);
+        for (int i = 0; i < colsum.size(); ++i) {
+            int cnt = colsum[i];
+            if (cnt == 2 || cnt == 0) {
+                ans[0].push_back(cnt == 2);
+                ans[1].push_back(cnt == 2);
+                upper -= cnt == 2, lower -= cnt == 2;
+            } else if (colsum[i] == 1) {
+                ans[0].push_back(upper >= lower);
+                ans[1].push_back(lower > upper);
+                upper >= lower ? upper-- : lower--;
+            }
+            if (upper < 0 || lower < 0) {
+                ans.clear();
+                return ans;
+            }
+        }
+        if (upper != 0 || lower != 0) ans.clear();
+        return ans;
+    }
+};
+```
+

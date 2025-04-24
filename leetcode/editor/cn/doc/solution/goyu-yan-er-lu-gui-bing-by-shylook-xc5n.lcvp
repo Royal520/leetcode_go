@@ -1,0 +1,84 @@
+1.归并排序的本质是递归
+2.找到中点
+3.2个列表排序
+4.我把递归+中间结点+排序分成三部分，希望能够好一点理解
+
+* 
+
+```
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+func sortList(head *ListNode) *ListNode {
+
+    if head == nil || head.Next == nil {
+        return head
+    }
+
+    mid := findMiddle(head)
+
+    left := sortList(head)
+    right := sortList(mid)
+
+    return merge(left,right)
+
+
+}
+func findMiddle(head *ListNode) *ListNode {
+
+    fast := head.Next
+    slow := head
+
+    for fast != nil {
+
+        if fast.Next == nil {
+            break 
+    }
+        fast = fast.Next.Next
+        slow = slow.Next
+    }
+    res := slow.Next
+    slow.Next = nil
+    return  res
+}
+func merge(left, right *ListNode) *ListNode {
+    if left == nil {
+        return right
+    }
+    if right == nil {
+        return left
+    }
+
+    h := &ListNode{}
+    res := h
+
+     for left != nil && right != nil {
+
+        if left.Val < right.Val {
+            h.Next = left
+            left = left.Next
+        } else {
+            h.Next = right
+            right = right.Next
+        }
+        h = h.Next
+    }
+
+    if left == nil && right != nil {
+        h.Next = right
+    }
+
+    if left != nil && right == nil {
+        h.Next = left
+    }
+
+    return res.Next
+
+
+}
+```
+

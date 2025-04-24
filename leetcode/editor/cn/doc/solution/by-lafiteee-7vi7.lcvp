@@ -1,0 +1,134 @@
+### 解题思路
+
+链表排序$O(nlogn)$的解法，只能是归并排序了。
+归并排序有自顶向下的递归方法，和自底向上的迭代方法。自顶向下的方法需要递归，消耗栈内存，而自底向上的方法则只需要常数空间。
+
+### 自顶向下的归并排序
+
+自顶向下的归并排序比较好想，递归到只剩一个结点或者为空链表，返回的时候返回合并后的链表头结点。
+时间复杂度 $O(nlogn)$
+空间复杂度 $O(logn)$
+
+* cpp
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+    ListNode* merge(ListNode* head1, ListNode* head2) {
+        ListNode* dummy = new ListNode();
+        ListNode* pre = dummy;
+        while (head1 != nullptr && head2 != nullptr) {
+            if (head1->val <= head2->val) {
+                pre->next = head1;
+                head1 = head1->next;
+            } else {
+                pre->next = head2;
+                head2 = head2->next;
+            }
+            pre = pre->next;
+        }
+        pre->next = head1 != nullptr ? head1 : head2;
+        return dummy->next;
+    }
+    ListNode* findMid(ListNode* head) {
+        ListNode* dummy = new ListNode(0, head);
+        ListNode *slow = dummy, *fast = dummy;
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return slow;
+    }
+public:
+    ListNode* sortList(ListNode* head) {
+        if (head == nullptr) {
+            return nullptr;
+        }
+        if (head->next == nullptr) {
+            return head;
+        }
+        ListNode* mid = findMid(head);
+        ListNode* head2 = mid->next;
+        mid->next = nullptr;
+        ListNode* left = sortList(head);
+        ListNode* right = sortList(head2);
+        return merge(left, right);
+    }
+};
+```
+
+### 自底向上的归并排序
+
+自底向上的归并排序写起来比较复杂，需要移动指针的同时维护好多个指针，移麻了...
+时间复杂度 $O(nlogn)$
+空间复杂度 $O(1)$
+
+* cpp
+
+```cpp
+class Solution {
+    ListNode* merge(ListNode* head1, ListNode* head2) {
+        ListNode* dummy = new ListNode();
+        ListNode* pre = dummy;
+        while (head1 != nullptr && head2 != nullptr) {
+            if (head1->val <= head2->val) {
+                pre->next = head1;
+                head1 = head1->next;
+            } else {
+                pre->next = head2;
+                head2 = head2->next;
+            }
+            pre = pre->next;
+        }
+        pre->next = head1 != nullptr ? head1 : head2;
+        return dummy->next;
+    }
+public:
+    ListNode* sortList(ListNode* head) {
+        int n = 0;
+        ListNode* cur = head;
+        while (cur != nullptr) {
+            n++;
+            cur = cur->next;
+        }
+        ListNode* dummy = new ListNode(0, head);
+        for (int len = 1; len < n; len *= 2) {  // 子链表长度，从 1 开始，每次翻倍
+            ListNode *pre = dummy, *cur = dummy->next;
+            while (cur != nullptr) {    // 每次遍历整条链表
+                ListNode* head1 = cur;  // 第一个链表的头结点
+                for (int i = 1; i < len && cur->next != nullptr; i++) { // 找到第一个链表的尾结点
+                    cur = cur->next;
+                }
+                ListNode* head2 = cur->next;    //第二个链表的头结点
+                cur->next = nullptr;    // 断开 head1 和 head2 的连接
+                cur = head2;            // 从 head2 开始继续遍历，寻找 head2 的尾结点
+                for (int i = 1; i < len && cur != nullptr && cur->next != nullptr; i++) {   // 寻找head2 的尾结点
+                    cur = cur->next;
+                }
+                ListNode* next = nullptr;   // 记录下一个链表的头结点
+                if (cur != nullptr) {       // head2 的尾结点有可能为空，不为空时才能更新 next 指针，需要判断
+                    next = cur->next;
+                    cur->next = nullptr;    // 断开 head2 的尾结点和 next 的连接
+                }
+                // 到这里，pre 指向前面合并完成有序链表的尾结点，head1 为一条单独链表，head2 为一条单独链表，next 为剩余的链表
+                pre->next = merge(head1, head2);    // 合并 head1 和 head2，并挂在 pre 后面
+                while (pre->next != nullptr) {      // 移动 pre 指针到有序链表的尾结点
+                    pre = pre->next;
+                }
+                cur = next;     // 从 next 开始继续归并
+            }
+        }
+        return dummy->next;
+    }
+};
+```
+

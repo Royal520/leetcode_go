@@ -1,0 +1,26 @@
+### 解题思路
+
+本题思路很简单，先判断最后一个元素与第一个元素是否相等，然后再一次循环判断空格前后两个元素是否相等，时间复杂度为$O(n)$.
+
+### 代码实现
+
+* cpp
+
+```cpp
+class Solution {
+public:
+    bool isCircularSentence(string sentence) {
+        int n = sentence.size();
+        if (n == 1)
+            return true;
+        if (sentence[0] != sentence[n - 1])
+            return false;
+        for (int i = 0; i < n - 2; ++i) {
+            if (sentence[i + 1] == ' ' && sentence[i] != sentence[i + 2])
+                return false;
+        }
+        return true;
+    }
+};
+```
+

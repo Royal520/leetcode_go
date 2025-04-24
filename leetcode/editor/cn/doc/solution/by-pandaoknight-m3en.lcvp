@@ -1,0 +1,36 @@
+### 参考了官方题解才理解什么是最小栈，它的使用着实有限
+
+* golang
+
+```golang
+type MinStack struct {
+    Min, Arr []int
+}
+
+func Constructor() MinStack {
+    return MinStack{}
+}
+
+func (p *MinStack) Push(val int)  {
+    p.Arr = append(p.Arr, val)
+    min := val
+    if len(p.Min) > 0 && min > p.Min[len(p.Min)-1] {
+        min = p.Min[len(p.Min)-1]
+    }
+    p.Min = append(p.Min, min)
+}
+
+func (p *MinStack) Pop()  {
+    p.Arr = p.Arr[:len(p.Arr)-1]
+    p.Min = p.Min[:len(p.Min)-1]
+}
+
+func (p *MinStack) Top() int {
+    return p.Arr[len(p.Arr)-1]
+}
+
+func (p *MinStack) GetMin() int {
+    return p.Min[len(p.Min)-1]
+}
+```
+

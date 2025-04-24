@@ -1,0 +1,107 @@
+> Problem: [2485. 找出中枢整数](https://leetcode.cn/problems/find-the-pivot-integer/description/)
+
+[TOC]
+
+# 解题方法
+
+> 一、直接暴力，不过时间复杂度太高O(n^2)，好在这里数字范围不大，勉强能AC；
+> 二、想到了二分法，有一定的提升->O(sqrt(n))，不过还是不够理想，对于简单题，时间复杂度不达到100%是不完整的；
+> 三、用数学的方法，先全部求和O(n)，然后依次从后往前相减，另外定义一个变量加上经过的数字，并判断它们的大小是否相等；
+> 四、在上一步的基础上使用数学方法，等差数列求和；
+> 五、将等差数列求和公式进行化简，得到了非常简短且时间复杂度为O(1)的代码。
+
+上述思路依次对应于代码中从下往上的各个解法
+
+# Code
+
+* []
+
+```Java
+
+class Solution {
+    /** 数学法进阶，将等差数列求和公式变形 */
+    public int pivotInteger(int n) {
+        // (res) * (1 + res) / 2 = (n - res + 1) * (res + n) / 2
+        // -> res*(1+res) = (n-res+1)*(res+n) -> res + res^2 = n*(res+n) - res^2-n*res+res+n
+        // -> 2 * res ^ 2 = n * (res + n) - n * res + n = n ^2 +n -> res = sqrt((n^2 + n) / 2)
+        // 如果res为整数，则说明它是中枢数
+        double res = Math.sqrt((n * n + n) / 2);
+        if(res % 1 == 0){
+            return (int)res;
+        }
+        return -1;
+    }
+    /** 数学法1，利用等差数列的求和公式 */
+    // public int pivotInteger(int n) {
+    //     int res = 1;
+    //     for(;res <= n;res++){
+    //         // 前半段[1, res]的和
+    //         int prev_sum = (res) * (1 + res) / 2;
+    //         // 后半段[res, n]的和
+    //         int rear_sum = (n - res + 1) * (res + n) / 2;
+    //         if(prev_sum == rear_sum){
+    //             return res;
+    //         }
+    //     }
+    //     return -1;
+    // }
+    /** 数学法2 */
+    // public int pivotInteger(int n) {
+    //     int sum = 0;
+    //     for(int i = 1;i <= n;i++){
+    //         sum += i;
+    //     }
+    //     int temp = 0;
+    //     for(int j = n;j > n / 2;j--){
+    //         temp += j;
+    //         if(sum == temp){
+    //             return j;
+    //         }
+    //         sum -= j;
+    //     }
+    //     return -1;
+    // }
+    /** 双指针&二分法 */
+    // public int pivotInteger(int n) {
+    //     int left = 1, right = n;
+    //     while(left <= right){
+    //         int mid = (left + right) / 2;
+    //         int sum_prev = 0, sum_rear = 0;
+    //         for(int i = 1;i <= mid;i++){
+    //             sum_prev += i;
+    //         }
+    //         for(int j = mid;j <= n;j++){
+    //             sum_rear += j;
+    //         }
+    //         if(sum_prev == sum_rear){
+    //             return mid;
+    //         }
+    //         else if(sum_prev < sum_rear){
+    //             left = mid+1;
+    //         }else{
+    //             right = mid-1;
+    //         }
+    //     }
+    //     return -1;
+    // }
+    /** 暴力法 */
+    // public int pivotInteger(int n) {
+    //     int res = n;
+    //     for(;res > 0;res--){
+    //         int sum_prev = 0, sum_rear = 0;
+    //         for(int i = 1;i <= res;i++){
+    //             sum_prev += i;
+    //         }
+    //         for(int j = res;j <= n;j++){
+    //             sum_rear += j;
+    //         }
+    //         if(sum_prev == sum_rear){
+    //             return res;
+    //         }
+
+    //     }
+    //     return -1;
+    // }
+}
+```
+

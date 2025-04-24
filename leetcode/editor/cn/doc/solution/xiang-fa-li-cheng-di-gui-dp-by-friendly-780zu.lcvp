@@ -1,0 +1,112 @@
+居然想出来了...
+
+##### 想法经历
+
+开始想先**自顶向下**回溯，先构建根节点，再构建子节点，由于相同的父节点对应于不同子节点的情况，但是由于是存成节点类型，所以改变后面回溯后会改变前面的情况，所以直接存结点失败...\
+->\
+然后想着先存成数组或者字符串，最后再构造树，好像也不行，层序遍历加入数组有问题...\
+->\
+那试试**自底向上**构建，先构建子，再构建自己，递归实现\
+->\
+中途发现这明显有很多重复的子问题，比如很多树都共有i-j构成的子树，比如构造[1:8]和[2:10]的树都需要经过[4:6]的树,所以是可以用dp优化的，然后就是设\
+`dpij [i:j]的所有二叉搜索树的头节点集合`
+
+##### 代码
+
+###### 1 递归
+
+* c++
+
+```c++
+vector<TreeNode*>& operator+(vector<TreeNode*>&a,vector<TreeNode*>&b)
+{
+  a.insert(a.end(),b.begin(),b.end());
+  return a;
+}
+vector<TreeNode*>& operator+(vector<TreeNode*>&a,vector<TreeNode*>&&b)
+{
+  a.insert(a.end(),b.begin(),b.end());
+  return a;
+}
+
+class Solution {
+  //利用返回一系列可能的左右根节点  构造当前根节点
+  vector<TreeNode*> dfs(int ll, int lr, int rl, int rr)
+  {
+    if(ll>lr&&rl>rr)
+      return {new TreeNode(lr+1)}; //没有可构造的
+
+    //构建左边
+    vector<TreeNode*> left;
+    for(int i=ll;i<=lr;++i)
+      left = left + dfs(ll,i-1,i+1,lr);
+
+    //构建右边
+    vector<TreeNode*> right;
+    for(int i=rl;i<=rr;++i)
+      right = right + dfs(rl,i-1,i+1,rr);
+
+    //构造中间节点
+    if(left.empty()) left.push_back(nullptr);
+    if(right.empty()) right.push_back(nullptr);
+    vector<TreeNode*> mid;
+    for(int i=0;i<left.size();++i)
+      for(int j=0;j<right.size();++j)
+        mid.push_back( new TreeNode(lr+1, left[i], right[j]) );
+    return mid;
+  }
+public:
+  vector<TreeNode*> generateTrees(int n) {
+    vector<TreeNode*> res;
+    for(int i=1;i<=n;++i)
+      res = res+dfs(1,i-1,i+1,n);
+    return res;
+  }
+};
+```
+
+###### 2 dp
+
+* c++
+
+```c++
+class Solution {
+  //aij  i-j构成的所有二叉搜索树头节点
+  /*
+  aij = Σtree(i,a[i][k-1],a[k+1][j])   i<=k<=j   左下->右上
+  */
+public:
+  vector<TreeNode*> generateTrees(int n) {
+    //外层两维表示索引，内存表示装结点的容器  索引为0的弃用
+    vector<vector<vector<TreeNode*>>> a(n+1,vector<vector<TreeNode*>>(n+1));
+    //初始化对角线
+    for(int i=1;i<=n;++i) a[i][i].push_back(new TreeNode(i));
+    //递推
+    for(int i=n-1;i>=1;--i)
+      for(int j=i+1;j<=n;++j)
+        for(int k=i;k<=j;++k)
+        {
+          if(k-1<i) //若左边没有
+          {
+            for(int l=0;l<a[k+1][j].size();++l)
+              a[i][j].push_back(new TreeNode(k, nullptr, a[k+1][j][l]));
+          }
+          else if(k+1>j)  //若右边没有
+          {
+            for(int l=0;l<a[i][k-1].size();++l)
+              a[i][j].push_back(new TreeNode(k, a[i][k-1][l], nullptr));
+          }
+          else    //若两边都有
+          {
+            for(int l1=0;l1<a[i][k-1].size();++l1)
+              for(int l2=0;l2<a[k+1][j].size();++l2)
+                a[i][j].push_back(new TreeNode(k, a[i][k-1][l1], a[k+1][j][l2]));
+          }
+        }
+
+    return a[1][n];
+  }
+};
+
+```
+

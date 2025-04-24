@@ -1,0 +1,233 @@
+排序算法其实就那么几种，背下来就好了，剩下的就是根据题的不同形式来变化选择对应的算法即可。
+如图：
+
+![image.png](https://pic.leetcode-cn.com/1617425519-BCKwIu-image.png)
+
+数组和链表，从抽象的思维角度来说除了单个数据之间的连接形式不一样，其它的都是一样的。
+
+那就根据上图的总结来选取对应的排序算法。
+题的要求时间复杂度是 O(n log n) ，从上图可知道。
+只有 Quicksort / Mergesort / Timesort / Heapsort / Tree sort / Cubesort 可以满足。
+
+本题只选用 Quicksort / Mergesort / Heapsort / Tree sort
+（ 但是快排总要超时，就放最后了。）
+
+---
+
+### 归并排序
+
+归并算法的本质是分成治之。当有多个数据的时候，处理不过来，从逻辑上切分成多分最小处理单位，分别处理。处理完，再合并每一份的结果。也就是从小结果一点点累积出最终结果。
+
+这个[网址](https://visualgo.net/zh/sorting)可以演示多种排序算法的逻辑，并且右下角有对应的过程展示，大家可以边暂停边思考。
+
+2份代码，一份切链，一份不切。
+
+* []
+
+```C++
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        if (!head || !head->next) return head;
+        auto slow = head, fast = head;
+        while (fast->next && fast->next->next)
+            slow = slow->next, fast = fast->next->next;
+        // 切链
+        fast = slow->next, slow->next = nullptr;
+        return merge(sortList(head), sortList(fast));
+    }
+
+private:
+    ListNode* merge(ListNode* l1, ListNode* l2) {
+        ListNode sub(0), *ptr = &sub;
+        while (l1 && l2) {
+            auto &node = l1->val < l2->val ? l1 : l2;
+            ptr = ptr->next = node, node = node->next;
+        }
+        ptr->next = l1 ? l1 : l2;
+        return sub.next;
+    }
+};
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    ListNode* sortList(ListNode* head, ListNode *tail = nullptr) {
+        if(!head) return nullptr;
+        if(head->next == tail){
+            head->next = nullptr;
+            return head;
+        }
+        auto quick = head, slow = head;
+        while (quick != tail && quick->next !=tail)
+            slow = slow->next, quick = quick->next->next;
+        return merge(sortList(head, slow), sortList(slow, tail));
+    }
+
+private:
+    ListNode* merge(ListNode* l1, ListNode* l2) {
+        ListNode sub(0), *ptr = &sub;
+        while(l1 && l2) {
+            auto &node = l1->val < l2->val ? l1 : l2;
+            ptr = ptr->next = node, node = node->next;
+        }
+        ptr->next = l1 ? l1 : l2;
+        return sub.next;
+    }
+};
+```
+
+---
+
+### 红黑树排序
+
+利用STL里面的set容器底层是红黑树实现，来实现树排序
+
+* 
+
+```
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        multiset<int> worker;
+        auto sub = head;
+        while (sub) worker.insert(sub->val),
+            sub = sub->next;
+        sub = head;
+        for (auto &i : worker)
+            sub->val = i, sub = sub->next;
+        return head;
+    }
+};
+```
+
+### 堆排序
+
+也是利用STL里面的优先队列底层是堆排序算法，来实现。
+
+* 
+
+```
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        priority_queue<int, vector<int>, greater<int>> worker;
+        auto sub = head;
+        while (sub) worker.push(sub->val), sub = sub->next;
+        sub = head;
+        while (sub) {
+            sub->val = worker.top(), worker.pop();
+            sub = sub->next;
+        }
+        return head;
+    }
+};
+```
+
+---
+
+以下代码是力扣因为时间过不了的代码，但是逻辑没问题。大家看看，当扩张思维了。
+
+代码逻辑都是，把数组当成中间变量来做排序，再最终转化成链表：
+链表->数组->链表
+
+### 快排
+
+* 
+
+```
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        vector<ListNode*> worker;
+        ListNode temp(0), *ptr = head;
+        while (ptr) worker.push_back(ptr), ptr = ptr->next;
+        quickSort(worker, 0, worker.size() - 1);
+        ptr = &temp;
+        for (auto i : worker) ptr = ptr->next = i;
+        ptr->next = nullptr;
+        return temp.next;
+    }
+
+private:
+    void quickSort(vector<ListNode*> &worker, int l, int r) {
+        if (l >= r) return;
+        int pivot = patition(worker, l, r);
+        quickSort(worker, l, pivot - 1);
+        quickSort(worker, pivot + 1, r);
+    }
+
+    int patition(vector<ListNode*> &worker, int l, int r) {
+        for (int i = l; i < r; ++i) {
+            if (worker[i]->val < worker[r]->val)
+                swap(worker[l++], worker[i]);
+        }
+        swap(worker[l], worker[r]);
+        return l;
+    }
+};
+```
+
+* 
+
+```
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        vector<int> worker;
+        auto sub = head;
+        while (sub) worker.push_back(sub->val),
+            sub = sub->next;
+        quickSort(worker, 0, worker.size() - 1);
+        sub = head;
+        for (auto &i : worker)
+            sub->val = i, sub = sub->next;
+        return head;
+    }
+
+private:
+    void quickSort(vector<int> &worker, int l, int r) {
+        if (l >= r) return;
+        int pivot = patition(worker, l, r);
+        quickSort(worker, l, pivot - 1);
+        quickSort(worker, pivot + 1, r);
+    }
+
+    int patition(vector<int> &worker, int l, int r) {
+        for (int i = l; i < r; ++i) {
+            if (worker[i] < worker[r])
+                swap(worker[l++], worker[i]);
+        }
+        swap(worker[l], worker[r]);
+        return l;
+    }
+};
+```
+
+### 冒泡
+
+* 
+
+```
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        vector<ListNode*> worker;
+        ListNode temp(0), *ptr = head;
+        while (ptr) worker.push_back(ptr), ptr = ptr->next;
+        for (int i = worker.size() - 1; i >= 0; --i) {
+            for (int j = 0; j < i; ++j)
+                if (worker[j]->val > worker[j + 1]->val)
+                    swap(worker[j], worker[j + 1]);
+        }
+        ptr = &temp;
+        for (auto i : worker) ptr = ptr->next = i;
+        ptr->next = nullptr;
+        return temp.next;
+    }
+};
+```
+

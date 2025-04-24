@@ -1,0 +1,48 @@
+第n层接收到节点数为n-1时返回的所有搜索二叉树，第n个节点只有2个位置可以插入：
+1. 节点n作为根节点，那么所有上层二叉树的n-1个节点都比它小，全部是它的左子树。
+2. 节点n不是根节点，节点n只能插入上层返回的搜索二叉树的右子树中，原来的右子树变成节点n的左子树。
+
+* 
+
+```
+class Solution {
+    public List<TreeNode> generateTrees(int n) {
+        List<TreeNode> res = new ArrayList<>();
+        if(n == 1){
+            TreeNode curNode = new TreeNode(n);
+            res.add(curNode);
+            return res;
+        }
+        List<TreeNode> lastRes = generateTrees(n-1);
+        // 新节点为根节点，只有左子树
+        for(int i = 0; i < lastRes.size(); i++){
+            TreeNode curNode = new TreeNode(n);
+            curNode.left = lastRes.get(i);
+            res.add(curNode);
+        }
+        // 新节点不是根节点，只能插入到每个节点的右子树上，原来的右子树变为新节点的左子树
+        for(int i = 0; i < lastRes.size(); i++){
+            TreeNode root = lastRes.get(i);
+            while(root != null){
+                TreeNode curNode = new TreeNode(n);
+                curNode.left = root.right;
+                root.right = curNode;
+                res.add(copyTree(lastRes.get(i)));
+                root.right = curNode.left;
+                root = root.right;
+            }
+        }
+        return res;
+    }
+    public TreeNode copyTree(TreeNode root){
+        if(root == null){
+            return null;
+        }
+        TreeNode newRoot = new TreeNode(root.val);
+        newRoot.left = copyTree(root.left);
+        newRoot.right = copyTree(root.right);
+        return newRoot;
+    }
+}
+```
+

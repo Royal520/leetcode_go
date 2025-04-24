@@ -1,0 +1,32 @@
+按先序序列的顺序构造节点，同时根据当前节点在中序序列中的位置（哈希表加速）确定左，右子树
+
+* 
+
+````
+func buildTree(preorder []int, inorder []int) *TreeNode {
+    var build func(int, int) *TreeNode
+    maps := make(map[int]int)
+    n := len(inorder)
+    for i := 0; i < n; i++ {
+        maps[inorder[i]] = i
+    }
+    index := -1
+    build = func(l, r int) *TreeNode {
+        if l > r {
+            return nil
+        }
+        index++
+        curr := maps[preorder[index]]
+        node := &TreeNode{
+            Val: preorder[index],
+            Left: nil,
+            Right: nil,
+        }
+        node.Left = build(l, curr - 1)
+        node.Right = build(curr + 1, r)
+        return node
+    }
+    return build(0, n - 1)
+}
+````
+

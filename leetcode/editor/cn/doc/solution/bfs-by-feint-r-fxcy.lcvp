@@ -1,0 +1,48 @@
+> Problem: [1466. 重新规划路线](https://leetcode.cn/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/description/)
+
+[TOC]
+
+# 解题方法
+
+> 从0节点开始BFS，如果某个点x到相邻点y的边是出边（x->y），这条边就需要被设置为入边（y->x），同时答案数加1。更新的同时需要将遍历到的点标记起来，以防重复更新。
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    private List<int[]>[] edge;
+    private boolean[] st;
+    public int minReorder(int n, int[][] connections) {
+        edge = new List[n];
+        st = new boolean[n];
+        for (int i = 0; i < n; i ++ ) edge[i] = new ArrayList<int[]>();
+        for (int i = 0; i < n-1; i ++ ) {
+            // 统计每个点的临边，1表示出边，0表示入边
+            edge[connections[i][0]].add(new int[]{connections[i][1], 1});
+            edge[connections[i][1]].add(new int[]{connections[i][0], 0});
+        }
+
+        int res = 0;
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(0);
+        st[0] = true;
+
+        while(!queue.isEmpty()) {
+            Integer t = queue.remove();
+            for (int i = 0; i < edge[t].size(); i ++ ) {
+                int[] node = edge[t].get(i);
+                if (!st[node[0]]) {
+                    queue.add(node[0]);
+                    st[node[0]] = true;
+                    if (node[1] == 1) res ++;
+                }
+            }
+        }
+
+        return res;
+    }
+}
+```
+

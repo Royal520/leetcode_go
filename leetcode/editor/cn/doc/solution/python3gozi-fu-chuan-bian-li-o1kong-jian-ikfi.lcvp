@@ -1,0 +1,53 @@
+> Problem: [2828. 判别首字母缩略词](https://leetcode.cn/problems/check-if-a-string-is-an-acronym-of-words/description/)
+
+# 思路
+
+使用两个指针 i 和 j 分别遍历 words 和 s。只要当前字符匹配，就将 j 移动到下一个字符。最终判断 j 是否等于 s 的长度，若是则返回 True，否则返回 False。
+
+# 复杂度
+
+- 时间复杂度：O(N + M)，其中 N 为 words 数组的长度，M 为字符串 s 的长度。在最坏情况下，我们需要遍历整个 words 数组和字符串 s 一次。
+
+- 空间复杂度：O(1)，因为算法只使用了常数级别的额外空间，没有使用额外的数据结构。
+
+# Code
+
+* []
+
+```Go
+func isAcronym(words []string, s string) bool {
+	i, j := 0, 0
+
+	for i < len(words) && j < len(s) {
+		// 如果当前字符匹配，则继续比较下一个字符
+		if words[i][0] == s[j] {
+			j++
+		}
+		i++
+	}
+
+	// 如果 j 等于 s 的长度，并且 i 等于 words 的长度，说明 s 是首字母缩略词
+	return j == len(s) && i == len(words)
+}
+```
+
+![image.png](https://pic.leetcode.cn/1703055670-XHsgjp-image.png)
+
+* []
+
+```python
+class Solution:
+    def isAcronym(self, words: List[str], s: str) -> bool:
+        i, j = 0, 0
+        
+        while i < len(words) and j < len(s):
+            # 如果当前字符匹配，则继续比较下一个字符
+            if words[i][0] == s[j]:
+                j += 1
+            i += 1
+        
+        # 如果 j 等于 s 的长度，并且 i 等于 words 的长度，说明 s 是首字母缩略词
+        return j == len(s) and i == len(words)
+```
+
+![image.png](https://pic.leetcode.cn/1703055698-RepwCY-image.png)

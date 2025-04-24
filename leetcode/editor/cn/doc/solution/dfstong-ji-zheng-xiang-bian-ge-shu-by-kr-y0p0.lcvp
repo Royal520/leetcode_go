@@ -1,0 +1,44 @@
+> Problem: [1466. 重新规划路线](https://leetcode.cn/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/description/)
+
+[TOC]
+
+# 思路
+
+> 都在注释了
+
+# Code
+
+* []
+
+```Java
+class Solution {
+    public int minReorder(int n, int[][] connections) {
+        List<int[]>[] eages = new List[n];
+        for(int i = 0; i < n; i++){
+            eages[i] = new ArrayList<int[]>();
+        }
+
+        //标记正向边和反向边
+        for(int[] e : connections){
+            int a = e[0],b = e[1];
+            eages[a].add(new int[]{b, 1});  //正向边
+            eages[b].add(new int[]{a, 0});  //反向边
+        }
+
+        int ans = dfs(-1, 0, eages);  //分别为parent , kid,即parent->kid
+        return ans;
+    }
+
+    int dfs(int parent, int x, List<int[]>[] eages){
+        int res = 0;    //把当前节点能走到的路径上的点，如果是正向边res就++
+        for(int[] eage: eages[x]){
+            int next = eage[0];  //当前节点x能走到的下一个节点是next
+            if(next == parent) continue;   //由于标记的是正向和反向的边嘛，所以要判断一下当前节点是不是从该边的另一个节点过来的，比如1,0，当前节点0可能就是1来的，这种情况要跳过。
+            res += eage[1] + dfs(x, next, eages);
+        }
+        return res;
+
+    }
+}
+```
+

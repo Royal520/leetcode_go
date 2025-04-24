@@ -1,0 +1,21 @@
+* []
+
+```C++
+class Solution {
+public:
+    int numTrees(int n) {
+        vector<int> dp(n + 1, 0);
+        dp[0] = 1; // 节点数为0的树有 1 种形态
+        dp[1] = 1; // 节点数为1的树有 1 种形态
+        for (int i = 2; i <= n; i++) {
+            // 树中节点总数为i个时形态数为dp[i]
+            for (int j = 0; j < i; j++) {
+                // 左子树节点个数对应的形态个数 * 右子树节点个数对应的形态个数
+                dp[i] += dp[j] * dp[i - 1 - j]; // 左子树个数 + 右子树个数的和 = (j + (i - 1 - j)) = i - 1 这个-1是减根节点个数
+            }
+        }
+        return dp[n];
+    }
+};
+```
+

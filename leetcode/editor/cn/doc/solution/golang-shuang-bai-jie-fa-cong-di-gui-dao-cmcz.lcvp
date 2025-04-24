@@ -1,0 +1,311 @@
+![2021618-230132.jpg](https://pic.leetcode-cn.com/1624028530-fDUMBR-2021618-230132.jpg)
+
+- ~~这题目分类在动态规划里我看官方题解甚至不写动态规划写法~~
+
+### 先讲讲递归怎么写
+
+- 评论区和题解已经有很多人写递归了，这里只说思路，代码没怎么优化，凑活看吧
+- 先定义一个**子过程F**，这个过程会**递归调用**。既然是递归调用就要考虑下层怎么调，边界是什么，主函数怎么调。
+
+#### 下层怎么调用
+
+- 既然是二叉搜索树，那就有左小右大的特点，那么左右两个数是否就能作为下层调用的参数呢
+- 为了方便，用数组\[3,4,5,6,7\]来举例。
+- 遍历数组
+  - 以3为头节点的时候，\[4,5,6,7\]为右子树结点集合生成，此时会调用`F(4,7)`，左子树为空，会调用`F(3,2)`，此时参数不合法返回空集合
+  - 以4为头节点的时候，\[3,\]为左树集合的生成，会调用`F(3,3)`，右树\[5,6,7\]，会调用`F(5,7)`
+  - 以5为头节点的时候，\[3,4\]为左树集合的生成，会调用`F(3,4)`，右树\[6,7\]，会调用`F(6,7)`
+  - 以6为头节点的时候，\[3,4,5\]为左树集合的生成，会调用`F(3,5)`，右树\[7\]，会调用`F(7,7)`
+  - 以7为头节点的时候，\[3,4,5,6\]为左子树结点集合生成，此时会调用`F(3,6)`，左子树为空，会调用`F(8,7)`，此时参数不合法返回空集合
+- 为什么不用1开头的数组来举例，是希望你能在过程中理解递归，\[3,4,5,6,7\]其实是长度为7的数组以2为头节点的时候的一个右子树过程
+
+#### 边界是什么
+
+- 通过上面的分析，传进来的参数如果左大于右（l>r）那就直接定义为不合法
+- **如果传进来的参数有l==r，那么直接返回由一个值形成的集合**
+
+#### 主函数怎么调用
+
+- `f(1,n)`
+- 从1到n作为根结点得到的树集合递归算好往上发给我
+
+#### 代码
+
+* []
+
+```Golang
+func generateTrees(n int) []*TreeNode {
+	return getRestNumRoot(1, n)
+}
+
+// 参数说明：l，r表示在[l,r]范围上，每个数字作为根节点时能得到的树 对应的根节点集合
+// 以下举例都用[3,4,5,6,7]来举例，不用从1开始是为了让你更直观理解递归过程
+func getRestNumRoot(l, r int) []*TreeNode {
+	if l > r {
+		// l都跑到r旁边了自然返回的是空集合 这种情况有两种可能
+		//	①遍历到3结点作为根，此时左子树为空，因为这是递归调用是getRestNumRoot(3,2)
+		//  ②遍历到7结点作为根，此时右子树为空，递归调用是getRestNumRoot(8,7)
+		return []*TreeNode{}
+	}
+	if l == r {
+		// 这种情况也好理解，不需要挨个去创建根节点，直接将只包含一个值的数组返回即可
+		// 举例：以4为根节点 左子树调用getRestNumRoot(3,3)
+		return []*TreeNode{
+			&TreeNode{Val: l},
+		}
+	}
+	ret := []*TreeNode{}
+	// 循环尝试将[l,r]范围上每个数字都作为头节点
+	for m := l; m <= r; m++ {
+
+		leftTreeSet := getRestNumRoot(l, m-1)	// 左边则是[l..m-1] 自己递归算好传上来给我	
+		rightTreeSet := getRestNumRoot(m+1, r)	// 右边则是[m+1..r] 自己递归算好传上来给我
+
+		if len(leftTreeSet) == 0 {
+			// 左树为空的时候说明右数一定有内容 挨个拼就行了
+			for i := 0; i < len(rightTreeSet); i++ {
+				root := &TreeNode{
+					Val:   m,
+					Left:  nil,
+					Right: nil,
+				}
+				root.Right = rightTreeSet[i]
+				ret = append(ret, root)
+			}
+		} else if len(rightTreeSet) == 0 {
+			// 同理 
+			for i := 0; i < len(leftTreeSet); i++ {
+				root := &TreeNode{
+					Val:   m,
+					Left:  nil,
+					Right: nil,
+				}
+				root.Left = leftTreeSet[i]
+				ret = append(ret, root)
+			}
+		} else {
+			// 左右根节点集合都有内容 左边集合拿一个 右边集合拿一个 拼一起就好了
+			for i := 0; i < len(leftTreeSet); i++ {
+				for j := 0; j < len(rightTreeSet); j++ {
+					root := &TreeNode{
+						Val:   m,
+						Left:  nil,
+						Right: nil,
+					}
+					root.Left = leftTreeSet[i]
+					root.Right = rightTreeSet[j]
+					ret = append(ret, root)
+				}
+			}
+		}
+	}
+	return ret
+}
+```
+
+### 动态规划解法
+
+- 如果上面的递归你理解清楚了，那么接下来动态规划会看的**非常顺利**
+- 听说过动态规划的都知道DP表，而**DP表怎么建，长多少宽多少，以及里面的内容怎么填**一直让人很头疼
+- 这道题同样要有dp表。这道题的DP表是一个三维数组，不要看到三维数组就头疼
+
+* Golang
+
+```Golang
+dp := make([][][]*TreeNode, n+1)
+for i := 0; i < len(dp); i++ {
+	dp[i] = make([][]*TreeNode, n+1)
+}
+```
+
+- 把 **[]*TreeNode**看作一个整体，直接理解为一个**二维数组**，里面的内容是**一群根节点**就好了
+
+#### 确定行列
+
+- 行列可以直接参考递归过程里的参数是什么，即l,r。但是l和r是可变的啊，就算是可变也会有个范围吧。所以行列的长度就是n，这里为了方便主函数调用我用了n+1个空间。即多了一行一列，方便后续理解。
+  ![2021618-234506.jpg](https://pic.leetcode-cn.com/1624031130-XEptdF-2021618-234506.jpg)
+- 这里的0行0列的值都是无效的
+
+#### 确定边界
+
+- 这个二维矩阵的**左下角是完全用不到**的
+  ![2021618-234620.jpg](https://pic.leetcode-cn.com/1624031201-HbfMoD-2021618-234620.jpg)
+- 因为上面的递归终止条件里说了l > r的话直接返回一个空
+
+#### 每个点的内容填什么
+
+- 由上面的递归我们知道，我们每次返回的是l,r范围内，每个值成为头节点形成的树，那么我们的DP表填的就是这个内容
+- 根据第二个终止条件我们得知，对角线的内容是已知的，即以自身值为父结点值形成的树，左右孩子结点均为空
+  ![2021618-234708.jpg](https://pic.leetcode-cn.com/1624031515-HHXwxM-2021618-234708.jpg)
+
+* Golang
+
+```Golang
+for i := 1; i <= n; i++ {
+	dp[i][i] = []*TreeNode{
+		&TreeNode{i, nil, nil},
+	}
+}
+```
+
+#### 开始填表
+
+* golang
+
+```golang
+	for k := 2; k <= n; k++ {
+		p := 1
+		q := k
+		for p <= n && q <= n {
+			dp[p][q] = []*TreeNode{}
+			for e := p; e <= q; e++ {
+				fmt.Println(k, p, q, e)
+				var leftTreeSet []*TreeNode
+				if e-1 < 1 {
+					leftTreeSet = []*TreeNode{}
+				} else {
+					leftTreeSet = dp[p][e-1]
+				}
+				var rightTreeSet []*TreeNode
+				if e+1 > n {
+					rightTreeSet = []*TreeNode{}
+				} else {
+					rightTreeSet = dp[e+1][q]
+				}
+
+				if leftTreeSet == nil || len(leftTreeSet) == 0 {
+					for i := 0; i < len(rightTreeSet); i++ {
+						root := &TreeNode{
+							Val:   e,
+							Left:  nil,
+							Right: nil,
+						}
+						root.Right = rightTreeSet[i]
+						dp[p][q] = append(dp[p][q], root)
+					}
+				} else if rightTreeSet == nil || len(rightTreeSet) == 0 {
+					for i := 0; i < len(leftTreeSet); i++ {
+						root := &TreeNode{
+							Val:   e,
+							Left:  nil,
+							Right: nil,
+						}
+						root.Left = leftTreeSet[i]
+						dp[p][q] = append(dp[p][q], root)
+					}
+				} else {
+					for i := 0; i < len(leftTreeSet); i++ {
+						for j := 0; j < len(rightTreeSet); j++ {
+							root := &TreeNode{
+								Val:   e,
+								Left:  nil,
+								Right: nil,
+							}
+							root.Left = leftTreeSet[i]
+							root.Right = rightTreeSet[j]
+							dp[p][q] = append(dp[p][q], root)
+						}
+					}
+				}
+			}
+			p++
+			q++
+		}
+	}
+```
+
+- 这个过程和上面的递归写法基本相同，无非是把递归调用，改成读取DP表
+- 填表的顺序是如图
+  ![微信图片_20210619000153.png](https://pic.leetcode-cn.com/1624032138-GKsrbP-%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20210619000153.png)
+
+- 这么读是因为依赖关系，我们以dp\[1\]\[2\]为例
+- dp【1】【2】就是**左边界为1和右边界为2时得到的一坨结点**
+  - 当我们以1为头节点的时候，我们需要dp【2】【2】的值
+  - 当我们以2为头节点的时候，我们需要dp【1】【1】的值
+- 其他坐标的一样，可以自行举例
+
+#### 最后返回什么
+
+- 回到题意，我们需要的是**左边界为1右边界为n得到的一大坨节点**
+- `return dp[1][n]`
+
+#### 完整代码
+
+* Golang
+
+```Golang
+func generateTrees(n int) []*TreeNode {
+	dp := make([][][]*TreeNode, n+1)
+	for i := 0; i < len(dp); i++ {
+		dp[i] = make([][]*TreeNode, n+1)
+	}
+	for i := 1; i <= n; i++ {
+		dp[i][i] = []*TreeNode{
+			&TreeNode{i, nil, nil},
+		}
+	}
+
+	for k := 2; k <= n; k++ {
+		p := 1
+		q := k
+		for p <= n && q <= n {
+			dp[p][q] = []*TreeNode{}
+			for e := p; e <= q; e++ {
+				fmt.Println(k, p, q, e)
+				var leftTreeSet []*TreeNode
+				if e-1 < 1 {
+					leftTreeSet = []*TreeNode{}
+				} else {
+					leftTreeSet = dp[p][e-1]
+				}
+				var rightTreeSet []*TreeNode
+				if e+1 > n {
+					rightTreeSet = []*TreeNode{}
+				} else {
+					rightTreeSet = dp[e+1][q]
+				}
+
+				if leftTreeSet == nil || len(leftTreeSet) == 0 {
+					for i := 0; i < len(rightTreeSet); i++ {
+						root := &TreeNode{
+							Val:   e,
+							Left:  nil,
+							Right: nil,
+						}
+						root.Right = rightTreeSet[i]
+						dp[p][q] = append(dp[p][q], root)
+					}
+				} else if rightTreeSet == nil || len(rightTreeSet) == 0 {
+					for i := 0; i < len(leftTreeSet); i++ {
+						root := &TreeNode{
+							Val:   e,
+							Left:  nil,
+							Right: nil,
+						}
+						root.Left = leftTreeSet[i]
+						dp[p][q] = append(dp[p][q], root)
+					}
+				} else {
+					for i := 0; i < len(leftTreeSet); i++ {
+						for j := 0; j < len(rightTreeSet); j++ {
+							root := &TreeNode{
+								Val:   e,
+								Left:  nil,
+								Right: nil,
+							}
+							root.Left = leftTreeSet[i]
+							root.Right = rightTreeSet[j]
+							dp[p][q] = append(dp[p][q], root)
+						}
+					}
+				}
+			}
+			p++
+			q++
+		}
+	}
+
+	return dp[1][n]
+}
+```
+

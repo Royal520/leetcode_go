@@ -1,0 +1,26 @@
+* 
+
+```
+class Solution {
+public:
+    //recursion函数把以root为根的子树整理成链表，并返回指向最后一个节点的指针
+    TreeNode* recursion(TreeNode* root){
+        //如果这颗树没有左右子树，那么最后一个节点就是根节点
+        if (!root->left && !root->right) return root;
+        //left_last：整理完成的左子树的最后一个节点
+        TreeNode* left_last = root->left ? recursion(root->left) : root;
+        //right_last：整理完成的右子树的最后一个节点
+        TreeNode* right_last = root->right ? recursion(root->right) : left_last;
+        TreeNode* tmp = root->right;
+        root->right = root->left;
+        root->left = nullptr;
+        left_last->right = tmp;
+        return right_last;
+    }
+    void flatten(TreeNode* root) {
+        if (!root) return;
+        recursion(root);
+    }
+};
+```
+

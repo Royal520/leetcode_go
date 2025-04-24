@@ -1,0 +1,48 @@
+1. 两次二分查找，先找行，再找列。
+   找到第1个大于target的matrix[i][0]，target在上一行(row = i - 1)
+
+* go
+
+```go
+func searchMatrix(matrix [][]int, target int) bool {
+	if len(matrix) == 0 {
+		return false
+	}
+	i, j := 0, len(matrix)
+	for i < j {
+		mid := i + (j-i)/2
+		if matrix[mid][0] > target {
+			j = mid
+		} else {
+			i = mid + 1
+		}
+	}
+	row := i - 1
+	if row < 0 {
+		return false
+	}
+	left, right := 0, len(matrix[row])-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if matrix[row][mid] == target {
+			return true
+		} else if matrix[row][mid] > target {
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
+	}
+	return false
+}
+
+1. 更简洁写法
+func searchMatrix(matrix [][]int, target int) bool {
+	row := sort.Search(len(matrix), func(i int) bool { return matrix[i][0] > target }) - 1
+	if row < 0 {
+		return false
+	}
+	col := sort.SearchInts(matrix[row], target)
+	return col < len(matrix[row]) && matrix[row][col] == target
+}
+```
+

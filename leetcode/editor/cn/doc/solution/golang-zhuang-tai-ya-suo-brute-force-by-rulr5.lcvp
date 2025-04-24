@@ -1,0 +1,47 @@
+枚举每一位即可确定当前BST的左，右子树
+
+* 
+
+````
+func generateTrees(n int) []*TreeNode {
+    var dfs func(int) []*TreeNode
+    dfs = func(u int) []*TreeNode {
+        ret := []*TreeNode{}
+        if u == 0 {
+            ret = append(ret, nil)
+            return ret
+        }
+        for i := 0; i < n; i++ {
+            if (u & (1 << i)) != 0 {
+                left := 0
+                for j := 0; j < i; j++ {
+                    if (u & (1 << j)) != 0 {
+                        left |= 1 << j
+                    }
+                }
+                right := 0
+                for j := i + 1; j < n; j++ {
+                    if (u & (1 << j)) != 0 {
+                        right |= 1 << j
+                    }
+                }
+                lNodes := dfs(left)
+                rNodes := dfs(right)
+                for _, vl := range lNodes {
+                    for _, vr := range rNodes {
+                        curr := &TreeNode{
+                            Val: i+1,
+                            Left: vl,
+                            Right: vr,
+                        }
+                        ret = append(ret, curr)
+                    }
+                }
+            }
+        }
+        return ret
+    }
+    return dfs((1 << n) - 1)
+}
+````
+

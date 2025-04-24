@@ -1,0 +1,76 @@
+我最开始的很麻烦的想法是将连续k个隔离出来，然后进行逆转拼接，文字不太好描述，以下图像比较好理解
+![a93a7e7e9070f88caa288d4cbea010d.jpg](https://pic.leetcode.cn/1691124357-ArigZl-a93a7e7e9070f88caa288d4cbea010d.jpg)
+但是这样就很麻烦，因为我需要记录要逆转的前一个节点，最后一个节点挨着的那个节点，感觉思路没问题但是如果有细节没考虑到那就得调试很久，主要主程序会有很多个变量，这让lz很头痛
+接着又开始思考，通过画图分析，我想到可以先对要逆转的那一部分全部进行逆转，再以k为单位进行逆转，这样的话整体对象都是一个链表，调试应该会好很多，重点只需要放在以k为单位逆转上，前面的全部逆转相当于k=1，重新写一个函数用来实现该功能，并返回起始节点和末节点方便进行拼接，大概思路如图所示
+![edc7ca719b306657fb23b363f6770f7.jpg](https://pic.leetcode.cn/1691124379-PKWPGU-edc7ca719b306657fb23b363f6770f7.jpg)
+接下来介绍一下以k为单位逆转的思路
+![afe4eed47d031e77d9111b7771e06d2.jpg](https://pic.leetcode.cn/1691124384-qwFIfE-afe4eed47d031e77d9111b7771e06d2.jpg)
+
+* 
+
+```
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    //对head以k为单位进行逆转
+    vector<ListNode*> reversek(ListNode* head,int k){
+        vector<ListNode*> ans;
+        ListNode * pre=NULL;
+        ListNode * pos=head;
+        ListNode * poss=pos;
+        ListNode * next=head;
+        for(int i=1;i<k;i++){
+            poss=poss->next;
+            next=next->next;
+        }
+        ans.push_back(poss);
+        next=next->next;
+        while(1){
+            poss->next=pre;
+            pre=pos;
+            pos=next;
+            if(pos==NULL){
+                ans.push_back(pre);
+                return ans;
+            }
+            poss=pos;
+            next=pos;
+            for(int i=1;i<k;i++){
+                poss=poss->next;
+                next=next->next;
+            }
+            next=next->next;
+        }
+    } 
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        ListNode* headcopy=head;
+        int length=0;
+        while(headcopy){
+            headcopy=headcopy->next;
+            length++;
+        }
+        int re=length/k * k;
+        headcopy=head;
+        while(head&&--re){
+            head=head->next;
+        }
+        vector<ListNode*> ans;
+        ListNode* next=head->next;
+        head->next=NULL;
+        ans=reversek(headcopy,1);
+        ans=reversek(ans[1],k);
+        ans[0]->next=next;
+        return ans[1];
+    }
+};
+```
+
